@@ -6,13 +6,39 @@ interface Category { id: string; icon: string; label: string; questions: Questio
 interface Message { role: "user" | "assistant"; content: string; timestamp: Date }
 
 function renderContent(text: string) {
-  const urlRegex = /(https?:\/\/[^\s\)\]]+)/g
-  const parts = text.split(urlRegex)
-  return parts.map((part, i) =>
-    urlRegex.test(part)
-      ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: "#60A5FA", textDecoration: "underline", wordBreak: "break-all" }}>{part}</a>
-      : <span key={i}>{part}</span>
-  )
+  const lines = text.split("\n")
+  return lines.map((line, li) => {
+    // 【情報源】セクションのサイト名|URL形式を処理
+    const sourceMatch = line.match(/^[-*]\s*(.+?)\|(https?:\/\/[^\s]+)$/)
+    if (sourceMatch) {
+      const [, name, url] = sourceMatch
+      return (
+        <span key={li}>
+          {"- "}
+          <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: "#60A5FA", textDecoration: "underline" }}>{name.trim()}</a>
+          {"\n"}
+        </span>
+      )
+    }
+    // 通常のURLをリンク化
+    const urlRegex = /(https?:\/\/[^\s\)\]]+)/g
+    const parts = line.split(urlRegex)
+    const hasUrl = parts.some(p => urlRegex.test(p))
+    urlRegex.lastIndex = 0
+    return (
+      <span key={li}>
+        {hasUrl
+          ? parts.map((part, i) =>
+              /(https?:\/\/[^\s\)\]]+)/.test(part)
+                ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" style={{ color: "#60A5FA", textDecoration: "underline", wordBreak: "break-all" }}>{part}</a>
+                : <span key={i}>{part}</span>
+            )
+          : line
+        }
+        {"\n"}
+      </span>
+    )
+  })
 }
 
 const DEFAULT_CATEGORIES: Category[] = [
