@@ -1,5 +1,5 @@
 "use client"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 
 interface Question { id: string; label: string; prompt: string }
 interface Category { id: string; icon: string; label: string; questions: Question[] }
@@ -79,7 +79,15 @@ const DEFAULT_CATEGORIES: Category[] = [
 const ICONS = ["\uD83D\uDCF0","\uD83D\uDCB9","\uD83D\uDED2","\uD83C\uDF24","\uD83D\uDD0D","\uD83D\uDCA1","\uD83C\uDFAE","\uD83C\uDF7D\uFE0F","\u2708\uFE0F","\uD83C\uDFE0","\uD83D\uDCCA","\uD83E\uDD16","\uD83C\uDF31","\uD83D\uDCBB","\uD83C\uDFAC","\uD83D\uDCDA","\uD83C\uDFC6","\uD83D\uDCCC","\uD83D\uDD14","\u2753"]
 
 export default function Home() {
-  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES)
+  const [categories, setCategories] = useState<Category[]>(() => {
+    if (typeof window === "undefined") return DEFAULT_CATEGORIES
+    try {
+      const saved = localStorage.getItem("infobot_categories")
+      return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES
+    } catch {
+      return DEFAULT_CATEGORIES
+    }
+  })
   const [selectedCatId, setSelectedCatId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
@@ -90,6 +98,12 @@ export default function Home() {
   const [newQLabel, setNewQLabel] = useState("")
   const [newQPrompt, setNewQPrompt] = useState("")
   const chatEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("infobot_categories", JSON.stringify(categories))
+    } catch {}
+  }, [categories])
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }) }, [messages, loading])
 
