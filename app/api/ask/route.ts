@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
   try {
     const { prompt } = await req.json()
     const result = await model.generateContent(
-      `${prompt}\n\n回答は必ず日本語で簡潔にまとめてください。\n\n最後に【情報源】として、実際に参照したウェブサイトの名称とURLを以下の形式で3件以内で記載してください。vertexaisearch等の内部URLは除外してください。\n\n【情報源】\n- サイト名|https://実際のURL\n- サイト名|https://実際のURL`
+      `${prompt}\n\n回答は必ず日本語で簡潔にまとめてください。価格に関する質問は公式価格・市場最安値・中古価格を具体的な金額で答えてください。\n\n最後に【情報源】として実際に参照したウェブサイトの名称とURLを以下の形式で3件以内で記載してください。vertexaisearch等の内部URLは絶対に使わないでください。\n\n【情報源】\n- サイト名|https://実際のURL\n- サイト名|https://実際のURL`
     )
     const answer = result.response.text()
     return NextResponse.json({ answer })
