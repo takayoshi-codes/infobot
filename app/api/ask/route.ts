@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     console.error("Ask error:", error)
     const msg = error instanceof Error ? error.message : ""
     if (msg.includes("429") || msg.includes("quota")) {
-      return NextResponse.json({ answer: "リクエストが集中しています。少し待ってから再度お試しください。" }, { status: 429 })
+      return NextResponse.json({ answer: "リクエストが集中しています。1分ほど待ってから再度お試しください。" }, { status: 429 })
     }
     return NextResponse.json({ answer: "エラーが発生しました。もう一度お試しください。" }, { status: 500 })
   }
